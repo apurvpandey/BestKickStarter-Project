@@ -500,10 +500,6 @@ public class MainActivity extends AppCompatActivity implements
         kickStarterProjectListAdapter.swapCursor(null);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
 
     private void onLeftSwipe() {
         startActivity(new Intent(this, PopularProjects.class));
@@ -514,6 +510,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
+    // Inner class to detect Swipe gestures
     public class SwipeGestureDetector extends GestureDetector.SimpleOnGestureListener {
 
         private static final int SWIPE_MIN_DISTANCE = 50;
@@ -524,10 +521,9 @@ public class MainActivity extends AppCompatActivity implements
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
                                float velocityY) {
             try {
-                Toast t = Toast.makeText(MainActivity.this, "Most popular projects", Toast.LENGTH_SHORT);
-                t.show();
-                float diffAbs = Math.abs(e1.getY() - e2.getY());
-                float diff = e1.getX() - e2.getX();
+
+                float diffAbs = Math.abs(e2.getY() - e1.getY());
+                float diff = e2.getX() - e1.getX();
 
                 if (diffAbs > SWIPE_MAX_OFF_PATH)
                     return false;
