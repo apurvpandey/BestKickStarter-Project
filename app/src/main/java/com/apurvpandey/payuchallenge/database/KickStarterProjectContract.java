@@ -11,7 +11,7 @@ import android.provider.BaseColumns;
  * Contact No. - +91-8377887369
  */
 
-public class KickStarterProjectContract {
+public class  KickStarterProjectContract {
 
     static final String CONTENT_AUTHORITY = "com.apurvpandey.payuchallenge";
     static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);

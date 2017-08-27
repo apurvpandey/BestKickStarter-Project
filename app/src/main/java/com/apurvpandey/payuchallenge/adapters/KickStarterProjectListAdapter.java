@@ -7,10 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.apurvpandey.payuchallenge.database.KickStarterProjectContract;
 import com.apurvpandey.payuchallenge.R;
+import com.apurvpandey.payuchallenge.database.KickStarterProjectContract;
 
 /**
  * Created by Apurv Pandey on 13/8/17.
@@ -51,14 +52,14 @@ public class KickStarterProjectListAdapter extends RecyclerView.Adapter<KickStar
 
 
         holder.tvProjectName.setText(dataCursor.getString(title_index));
-        holder.tvPleadge.setText(context.getString(R.string.pledged_amount)+dataCursor.getInt(pledged_index));
-        holder.tvBackers.setText(context.getString(R.string.backers_label)+dataCursor.getString(backers_index));
-        holder.tvNoOfDaysTOGo.setText(context.getString(R.string.noOfDaysToGoLabel)+dataCursor.getString(no_of_days_index));
+        holder.tvPleadge.setText(context.getString(R.string.pledged_amount) + dataCursor.getInt(pledged_index));
+        holder.tvBackers.setText(context.getString(R.string.backers_label) + dataCursor.getString(backers_index));
+        holder.tvNoOfDaysTOGo.setText(context.getString(R.string.noOfDaysToGoLabel) + dataCursor.getString(no_of_days_index));
 
     }
 
 
-    public void setItemClickListener(ItemClickListener itemClickListener){
+    public void setItemClickListener(ItemClickListener itemClickListener) {
         this.itemClickListener = itemClickListener;
     }
 
@@ -86,7 +87,7 @@ public class KickStarterProjectListAdapter extends RecyclerView.Adapter<KickStar
         TextView tvPleadge;
         TextView tvBackers;
         TextView tvNoOfDaysTOGo;
-        FrameLayout mainLayout;
+        LinearLayout mainLayout;
 
         VH(View itemView) {
             super(itemView);
@@ -95,7 +96,7 @@ public class KickStarterProjectListAdapter extends RecyclerView.Adapter<KickStar
             tvPleadge = (TextView) itemView.findViewById(R.id.pleadge);
             tvBackers = (TextView) itemView.findViewById(R.id.backers);
             tvNoOfDaysTOGo = (TextView) itemView.findViewById(R.id.noOfDaysToGo);
-            mainLayout = (FrameLayout) itemView.findViewById(R.id.main_layout);
+            mainLayout = (LinearLayout) itemView.findViewById(R.id.main_layout);
 
             mainLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -103,7 +104,7 @@ public class KickStarterProjectListAdapter extends RecyclerView.Adapter<KickStar
 
                     dataCursor.moveToPosition(getAdapterPosition());
 
-                    if (itemClickListener!=null)
+                    if (itemClickListener != null)
                         itemClickListener.itemClicked(dataCursor);
                 }
             });
@@ -111,6 +112,8 @@ public class KickStarterProjectListAdapter extends RecyclerView.Adapter<KickStar
         }
     }
 
-    public interface ItemClickListener{
+    public interface ItemClickListener {
         void itemClicked(Cursor dataCursor);
-    }}
+    }
+
+}

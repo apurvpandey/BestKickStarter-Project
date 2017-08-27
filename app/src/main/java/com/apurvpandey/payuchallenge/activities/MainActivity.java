@@ -1,25 +1,30 @@
 package com.apurvpandey.payuchallenge.activities;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.InputType;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -32,9 +37,9 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.apurvpandey.payuchallenge.database.KickStarterProjectContract;
-import com.apurvpandey.payuchallenge.adapters.KickStarterProjectListAdapter;
 import com.apurvpandey.payuchallenge.R;
+import com.apurvpandey.payuchallenge.adapters.KickStarterProjectListAdapter;
+import com.apurvpandey.payuchallenge.database.KickStarterProjectContract;
 import com.apurvpandey.payuchallenge.network.VolleySingleton;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
@@ -47,7 +52,7 @@ import java.util.Vector;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 
 public class MainActivity extends AppCompatActivity implements
-        KickStarterProjectListAdapter.ItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
+        KickStarterProjectListAdapter.ItemClickListener, LoaderManager.LoaderCallbacks<Cursor>{
 
     private static final int BEST_KICK_PROJECTS_LOADER = 200;
     private RecyclerView recyclerView;
@@ -58,6 +63,8 @@ public class MainActivity extends AppCompatActivity implements
     private LinearLayoutManager linearLayoutManager;
     private SmoothProgressBar smoothProgressBar;
     MaterialSearchView materialSearchView;
+    private GestureDetector gestureDetector;
+    View.OnTouchListener gestureListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +84,20 @@ public class MainActivity extends AppCompatActivity implements
         args.putBoolean("search", false);
 
         getSupportLoaderManager().initLoader(BEST_KICK_PROJECTS_LOADER, args, this);
+
+        initSwipeListener();
+
+    }
+
+    private void initSwipeListener() {
+        gestureDetector = new GestureDetector(new SwipeGestureDetector());
+        gestureListener = new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        };
+        recyclerView.setOnTouchListener(gestureListener);
+
     }
 
     private void getProjects() {
@@ -269,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements
 
                 Bundle args = new Bundle();
                 args.putInt("start", 0);
-                args.putInt("end", kickStarterProjectListAdapter.getItemCount() - 1);
+                args.putInt("end", 19);
                 args.putBoolean("sort", false);
                 args.putBoolean("filter", false);
                 args.putBoolean("search", false);
@@ -342,6 +363,7 @@ public class MainActivity extends AppCompatActivity implements
 
             selectionArgs = new String[]{String.valueOf(start), String.valueOf(end), "%" + args.getString("search_key") + "%"};
         } else {
+
             selection = KickStarterProjectContract.KickEntry.TABLE_NAME + "." + KickStarterProjectContract.KickEntry.KICK_SL_NUMBER + " >= ? AND " +
                     KickStarterProjectContract.KickEntry.TABLE_NAME + "." + KickStarterProjectContract.KickEntry.KICK_SL_NUMBER + " <= ?";
             selectionArgs = new String[]{String.valueOf(start), String.valueOf(end)};
@@ -375,10 +397,12 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.ic_search:
                 materialSearchView.showSearch();
                 break;
+
         }
 
         return super.onOptionsItemSelected(item);
     }
+
 
     private void sort() {
 
@@ -475,4 +499,56 @@ public class MainActivity extends AppCompatActivity implements
     public void onLoaderReset(Loader<Cursor> loader) {
         kickStarterProjectListAdapter.swapCursor(null);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    private void onLeftSwipe() {
+        startActivity(new Intent(this, PopularProjects.class));
+    }
+
+    private void onRightSwipe() {
+        // Do nothing
+    }
+
+
+    public class SwipeGestureDetector extends GestureDetector.SimpleOnGestureListener {
+
+        private static final int SWIPE_MIN_DISTANCE = 50;
+        private static final int SWIPE_MAX_OFF_PATH = 200;
+        private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+                               float velocityY) {
+            try {
+                Toast t = Toast.makeText(MainActivity.this, "Most popular projects", Toast.LENGTH_SHORT);
+                t.show();
+                float diffAbs = Math.abs(e1.getY() - e2.getY());
+                float diff = e1.getX() - e2.getX();
+
+                if (diffAbs > SWIPE_MAX_OFF_PATH)
+                    return false;
+
+                // Right swipe
+                if (diff > SWIPE_MIN_DISTANCE
+                        && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                    MainActivity.this.onRightSwipe();
+                }
+                // Left swipe
+                else if (-diff > SWIPE_MIN_DISTANCE
+                        && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                    MainActivity.this.onLeftSwipe();
+                }
+            } catch (Exception e) {
+                Log.e("TAG", "Error on gestures");
+            }
+            return false;
+        }
+
+    }
+
 }
+
